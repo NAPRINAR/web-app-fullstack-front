@@ -6,8 +6,15 @@ import { store } from "./app/store"
 import "./index.css"
 
 import { NextUIProvider } from "@nextui-org/react"
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider/themeProvider"
+import { Auth } from "./pages/auth/Auth"
+import { Layout } from "./components/Layout/Layout"
+import { Post } from "./pages/post/Post"
+import { CurrentPost } from "./pages/current-post/CurrentPost"
+import { UserProfile } from "./pages/user-profile/UserProfile"
+import { Follower } from "./pages/follower/Follower"
+import { Following } from "./pages/following/Following"
 // import { ThemeProvider } from "./components/theme-provider/ThemeProvider.tsx"
 
 const container = document.getElementById("root")
@@ -15,11 +22,33 @@ const container = document.getElementById("root")
 const router = createBrowserRouter([
   {
     path: "/auth",
-    element: <h1>Auth</h1>,
+    element: <Auth />,
   },
   {
     path: "/",
-    element: <h1>Layout</h1>,
+    element: <Layout />,
+    children: [
+      {
+        path: "",
+        element: <Post />,
+      },
+      {
+        path: "posts/:id",
+        element: <CurrentPost />,
+      },
+      {
+        path: "users/:id",
+        element: <UserProfile />,
+      },
+      {
+        path: "followers",
+        element: <Follower />,
+      },
+      {
+        path: "following",
+        element: <Following />,
+      },
+    ],
   },
 ])
 
@@ -31,7 +60,7 @@ if (container) {
       <Provider store={store}>
         <NextUIProvider>
           <ThemeProvider>
-            <App />
+            <RouterProvider router={router} />
           </ThemeProvider>
         </NextUIProvider>
       </Provider>
