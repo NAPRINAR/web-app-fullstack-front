@@ -8,6 +8,7 @@ import "./index.css"
 import { NextUIProvider } from "@nextui-org/react"
 import { createBrowserRouter } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider/themeProvider"
+// import { ThemeProvider } from "./components/theme-provider/ThemeProvider.tsx"
 
 const container = document.getElementById("root")
 
