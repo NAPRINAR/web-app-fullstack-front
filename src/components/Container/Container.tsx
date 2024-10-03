@@ -1,7 +1,7 @@
 import type React from "react"
 
 type Props = {
-  childer: React.ReactElement[] | React.ReactElement
+  children: React.ReactElement[] | React.ReactElement
 }
 
 export const Container = ({ children }: Props) => {

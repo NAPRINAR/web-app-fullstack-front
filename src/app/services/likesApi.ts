@@ -1,4 +1,4 @@
-import type { Comment, Like } from "../types"
+import type { Like } from "../types"
 import { api } from "./api"
 
 export const likesApi = api.injectEndpoints({
@@ -18,3 +18,9 @@ export const likesApi = api.injectEndpoints({
     }),
   }),
 })
+
+export const { useLikePostMutation, useUnlikePostMutation } = likesApi
+
+export const {
+  endpoints: { likePost, unlikePost },
+} = likesApi
