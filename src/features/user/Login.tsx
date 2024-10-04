@@ -39,9 +39,10 @@ export const Login = ({ setSelected }: Props) => {
   const onSubmit = async (data: LoginType) => {
     try {
       await login(data).unwrap()
-      await triggerCurrentQuery()
+      await triggerCurrentQuery().unwrap()
       navigate("/")
     } catch (err) {
+      console.log(err)
       if (hasErrorField(err)) {
         setError(err.data.error)
       }
@@ -65,7 +66,6 @@ export const Login = ({ setSelected }: Props) => {
       />
 
       <ErrorMessage error={error} />
-
       <p className="text-center text-small">
         Нет аккаунта?{" "}
         <Link
@@ -76,7 +76,6 @@ export const Login = ({ setSelected }: Props) => {
           Зарегистрируйтесь
         </Link>
       </p>
-
       <div className="flex-gap-2 justify-end">
         <Button fullWidth color="primary" type="submit" isLoading={isLoading}>
           Войти
