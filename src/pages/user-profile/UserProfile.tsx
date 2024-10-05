@@ -1,5 +1,5 @@
 import { Button, Card, Image, useDisclosure } from "@nextui-org/react"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { useDispatch, useSelector } from "react-redux"
 import { useParams } from "react-router-dom"
@@ -23,6 +23,7 @@ import { CiEdit } from "react-icons/ci"
 import { ProfileInfo } from "../../components/ProfileInfo/ProfileInfo"
 import { formatToClientDate } from "../../utils/format-to-client-date"
 import { CountInfo } from "../../components/CountInfo/CountInfo"
+import { hasErrorField } from "../../utils/has-error-field"
 
 export const UserProfile = () => {
   const { id } = useParams<{ id: string }>()
@@ -33,6 +34,7 @@ export const UserProfile = () => {
   const [unfollowUser] = useUnFollowUserMutation()
   const [triggerGetUserById] = useLazyGetUserByIdQuery()
   const [triggerCurrentQuery] = useLazyCurrentQuery()
+  const [error, setError] = useState("")
 
   const dispatch = useDispatch()
 
@@ -44,6 +46,25 @@ export const UserProfile = () => {
 
   if (!data) {
     return null
+  }
+
+  const handleFollow = async () => {
+    try {
+      if (id) {
+        data?.isFollowing
+          ? await unfollowUser(id).unwrap()
+          : await followUser({ followingId: id }).unwrap()
+
+        await triggerGetUserById(id)
+        await triggerCurrentQuery()
+      }
+    } catch (error) {
+      if (hasErrorField(error)) {
+        setError(error.data.error)
+      } else {
+        setError(error as string)
+      }
+    }
   }
   return (
     <>
@@ -64,6 +85,7 @@ export const UserProfile = () => {
                 color={data.isFollowing ? "default" : "primary"}
                 variant="flat"
                 className="gap-2"
+                onClick={handleFollow}
                 endContent={
                   data.isFollowing ? (
                     <MdOutlinePersonAddDisabled />
@@ -89,7 +111,7 @@ export const UserProfile = () => {
           <ProfileInfo title="Обо Мне" info={data.bio} />
           <div className="flex gap-2">
             <CountInfo count={data.followers.length} title="Подписчики" />
-            <CountInfo count={data.following.length} title="Подписчики" />
+            <CountInfo count={data.following.length} title="Подписки" />
           </div>
         </Card>
       </div>
