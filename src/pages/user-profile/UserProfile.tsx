@@ -24,6 +24,7 @@ import { ProfileInfo } from "../../components/ProfileInfo/ProfileInfo"
 import { formatToClientDate } from "../../utils/format-to-client-date"
 import { CountInfo } from "../../components/CountInfo/CountInfo"
 import { hasErrorField } from "../../utils/has-error-field"
+import { EditProfile } from "../../components/EditProfile/EditProfile"
 
 export const UserProfile = () => {
   const { id } = useParams<{ id: string }>()
@@ -97,7 +98,9 @@ export const UserProfile = () => {
                 {data.isFollowing ? "Отписаться" : "Подписаться"}
               </Button>
             ) : (
-              <Button endContent={<CiEdit />}>Редактировать</Button>
+              <Button onClick={() => onOpen} endContent={<CiEdit />}>
+                Редактировать
+              </Button>
             )}
           </div>
         </Card>
@@ -115,6 +118,7 @@ export const UserProfile = () => {
           </div>
         </Card>
       </div>
+      <EditProfile isOpen={isOpen} onClose={onClose} user={data} />
     </>
   )
 }
