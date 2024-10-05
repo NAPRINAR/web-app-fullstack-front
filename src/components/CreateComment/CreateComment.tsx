@@ -2,15 +2,19 @@ import React from "react"
 import {
   useCreatePostMutation,
   useLazyGetAllPostsQuery,
+  useLazyGetPostByIdQuery,
 } from "../../app/services/postsApi"
 import { Controller, useForm } from "react-hook-form"
 import { Button, Textarea } from "@nextui-org/react"
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage"
 import { IoMdCreate } from "react-icons/io"
+import { useParams } from "react-router-dom"
+import { useCreateCommentMutation } from "../../app/services/commentsApi"
 
-export const CreatePost = () => {
-  const [createPost] = useCreatePostMutation()
-  const [triggerAllPosts] = useLazyGetAllPostsQuery()
+export const CreateComment = () => {
+  const { id } = useParams<{ id: string }>()
+  const [createComment] = useCreateCommentMutation()
+  const [getPostById] = useLazyGetPostByIdQuery()
   const {
     handleSubmit,
     control,
@@ -21,9 +25,11 @@ export const CreatePost = () => {
   const error = errors?.post?.message as string
   const onSubmit = handleSubmit(async data => {
     try {
-      await createPost({ content: data.post }).unwrap()
-      setValue("post", "")
-      await triggerAllPosts().unwrap()
+      if (id) {
+        await createComment({ content: data.comment, postId: id }).unwrap()
+        setValue("comment", "")
+        await getPostById(id).unwrap()
+      }
     } catch (error) {
       console.log(error)
     }
@@ -31,26 +37,26 @@ export const CreatePost = () => {
   return (
     <form className="flex-grow" onSubmit={onSubmit}>
       <Controller
-        name="post"
+        name="comment"
         control={control}
         defaultValue=""
         render={({ field }) => (
           <Textarea
             {...field}
             labelPlacement="outside"
-            placeholder="О чем думаете"
+            placeholder="Напишите свой комментарий"
             className="mb-5"
           />
         )}
       />
       {errors && <ErrorMessage error={error} />}
       <Button
-        color="success"
+        color="primary"
         className="flex-end"
         endContent={<IoMdCreate />}
         type="submit"
       >
-        Добавить пост
+        Ответить
       </Button>
     </form>
   )

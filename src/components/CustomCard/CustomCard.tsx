@@ -37,12 +37,12 @@ type Props = {
   authorId: string
   content: string
   commentId?: string
-  likesCount: number
+  likesCount?: number
   commentsCount?: number
   createdAt?: Date
   id?: string
   cardFor: "comment" | "post" | "current-post"
-  likedByUser: boolean
+  likedByUser?: boolean
 }
 export const CustomCard = ({
   avatarUrl = "",
@@ -95,12 +95,27 @@ export const CustomCard = ({
           navigate("/")
           break
         case "comment":
-          await deleteComment(id).unwrap()
+          await deleteComment(commentId).unwrap()
           await refetchPosts()
           break
         default:
           throw new Error("Неверный аргумент cardFor")
       }
+    } catch (error) {
+      if (hasErrorField(error)) {
+        setError(error.data.error)
+      }
+      setError(error as string)
+    }
+  }
+
+  const handleClick = async () => {
+    try {
+      likedByUser
+        ? await unLikePost(id).unwrap()
+        : await likePost({ postId: id }).unwrap()
+
+      await triggerGetPostById(id).unwrap()
     } catch (error) {
       if (hasErrorField(error)) {
         setError(error.data.error)
@@ -136,7 +151,7 @@ export const CustomCard = ({
       {cardFor !== "comment" && (
         <CardFooter className="gap-3">
           <div className="flex gap-5 items-center">
-            <div>
+            <div onClick={handleClick}>
               <MetaInfo
                 count={likesCount}
                 Icon={likedByUser ? FcDislike : MdOutlineFavoriteBorder}
