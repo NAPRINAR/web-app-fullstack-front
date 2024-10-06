@@ -67,6 +67,20 @@ export const UserProfile = () => {
       }
     }
   }
+  const handleClose = async () => {
+    try {
+      if (id) {
+        await triggerGetUserById(id)
+        await triggerCurrentQuery()
+        onClose()
+      }
+    } catch (error) {
+      if (hasErrorField(error)) {
+        setError(error.data.error)
+      }
+      setError(error as string)
+    }
+  }
   return (
     <>
       <GoBack />
@@ -98,7 +112,7 @@ export const UserProfile = () => {
                 {data.isFollowing ? "Отписаться" : "Подписаться"}
               </Button>
             ) : (
-              <Button onClick={() => onOpen} endContent={<CiEdit />}>
+              <Button onClick={() => onOpen()} endContent={<CiEdit />}>
                 Редактировать
               </Button>
             )}
@@ -118,7 +132,7 @@ export const UserProfile = () => {
           </div>
         </Card>
       </div>
-      <EditProfile isOpen={isOpen} onClose={onClose} user={data} />
+      <EditProfile isOpen={isOpen} onClose={handleClose} user={data} />
     </>
   )
 }

@@ -1,4 +1,5 @@
-import React, { useContext, useState } from "react"
+import type React from "react"
+import { useContext, useState } from "react"
 import type { User } from "../../app/types"
 import { ThemeContext } from "../theme-provider/themeProvider"
 import { useUpdateUserMutation } from "../../app/services/userApi"
@@ -9,6 +10,7 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   Textarea,
 } from "@nextui-org/react"
@@ -16,6 +18,7 @@ import { CustomInput } from "../CustomInput/CustomInput"
 import { MdOutlineEmail } from "react-icons/md"
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage"
 import { CustomButton } from "../CustomButtom/CustomButton"
+import { hasErrorField } from "../../utils/has-error-field"
 
 type Props = {
   isOpen: boolean
@@ -40,6 +43,41 @@ export const EditProfile = ({ isOpen, onClose, user }: Props) => {
       location: user?.location,
     },
   })
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files !== null) {
+      setSelectedFile(e.target.files[0])
+    }
+  }
+  const onSubmit = handleSubmit(async data => {
+    // console.log(data)
+    if (id) {
+      try {
+        const formData = new FormData()
+        // formData.append("name", "lolosh")
+
+        data.name && formData.append("name", data.name)
+        data.email &&
+          data.email !== user?.email &&
+          formData.append("email", data.email)
+        data.dateOfBirth &&
+          formData.append(
+            "dateOfBirth",
+            new Date(data.dateOfBirth).toISOString(),
+          )
+        data.bio && formData.append("bio", data.bio)
+        data.location && formData.append("location", data.location)
+        selectedFile && formData.append("avatar", selectedFile)
+        // console.log(formData)
+        // console.log(formData.values)
+
+        await updateUser({ userData: formData, id }).unwrap()
+      } catch (error) {
+        if (hasErrorField(error)) {
+          setError(error.data.error)
+        }
+      }
+    }
+  })
   return (
     <Modal
       isOpen={isOpen}
@@ -53,7 +91,7 @@ export const EditProfile = ({ isOpen, onClose, user }: Props) => {
               Изменение профиля
             </ModalHeader>
             <ModalBody>
-              <form className="flex flex-col gap-4">
+              <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                 <CustomInput
                   control={control}
                   name="email"
@@ -71,6 +109,7 @@ export const EditProfile = ({ isOpen, onClose, user }: Props) => {
                   type="file"
                   name="avatarUrl"
                   placeholder="Выберите файл"
+                  onChange={handleFileChange}
                 />
                 <CustomInput
                   control={control}
@@ -109,6 +148,11 @@ export const EditProfile = ({ isOpen, onClose, user }: Props) => {
                 </div>
               </form>
             </ModalBody>
+            <ModalFooter className="flex justify-center">
+              <Button color="danger" variant="light" onPress={onClose}>
+                Закрыть
+              </Button>
+            </ModalFooter>
           </>
         )}
       </ModalContent>
